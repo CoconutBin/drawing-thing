@@ -1,9 +1,11 @@
 import pygame
+import numpy as np
+import testing
 
 #setup
 pygame.init()
 screenx, screeny = 960, 720
-screen = pygame.display.set_mode((screenx, screeny))
+screen = pygame.display.set_mode((screenx, screeny), )
 mouse_last_pos = (0.0, 0.0)
 screen.fill("white")
 font = pygame.font.SysFont('Arial', 36)
@@ -76,14 +78,17 @@ while running:
     else:
         Erase = pygame.image.load('./assets/erase.png')
     
-    
-    
     #collect data
     save_image = screen.subsurface(pygame.Rect(240, 0, screenx - 240, screeny))
-    save_image = pygame.transform.smoothscale(save_image, (32, 32))
-    if keys[pygame.K_e] == True:
-        pygame.image.save(save_image, "./data/testing/test.png")
+    save_image = pygame.transform.smoothscale(save_image, (28, 28))
     drawing_data = pygame.surfarray.array3d(save_image)
+    grayscale_array = np.round( # chatgpt
+        0.299 * drawing_data[:, :, 0] +
+        0.587 * drawing_data[:, :, 1] +
+        0.114 * drawing_data[:, :, 2]
+    ).astype(np.uint8)
+    
+    Guess = testing.get_answer(grayscale_array)
     
     #update screen
     pygame.display.flip() 
