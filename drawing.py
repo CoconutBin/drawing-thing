@@ -46,11 +46,13 @@ while running:
     
     results = testing.get_answer(grayscale_array)
     
-    #draw text
+    # Clear the text area
+    pygame.draw.rect(screen, "white", (50, 300, 200, 50 * len(results)))
+
+    # Draw new results
     for i, result in enumerate(results):
         text = font.render(result, False, "black")
-        # screen.blit(old_text, (50, 300))
-        screen.blit(text, (50, 300 + 50*i))
+        screen.blit(text, (50, 300 + 50 * i))
     
     #draw UI
     pygame.draw.line(screen, "black", (229, 0), (229, screeny), 21)
