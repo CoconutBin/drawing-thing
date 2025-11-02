@@ -1,0 +1,4 @@
+/__pycache__
+/data/training/**
+/data/testing/**
+/my_model.pth
