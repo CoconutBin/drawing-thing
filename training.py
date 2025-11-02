@@ -5,6 +5,8 @@ import random
 
 import torch
 from torch import nn
+import torch.optim as optim
+import torch.nn.functional as F
 from torch.optim import Adam
 from torch.utils.data import TensorDataset, DataLoader, random_split
 
@@ -20,16 +22,34 @@ training_data_directory = "./training_data"
 class NeuralNetwork(nn.Module):
     def __init__(self, num_categories):
         super().__init__()
-        self.linear_relu_stack = nn.Sequential(
-            nn.Linear(784, 32),
-            nn.ReLU(),
-            nn.Linear(32, 16),
-            nn.ReLU(),
-            nn.Linear(16, num_categories) # As many outputs as there are categories
-        )
+        self.conv1 = nn.Conv2d(1, 6, 5)
+        self.pool = nn.MaxPool2d(2, 2)
+        self.conv2 = nn.Conv2d(6, 16, 5)
+        self.fc1 = nn.Linear(16 * 4 * 4, 120)
+        self.fc2 = nn.Linear(120, 84)
+        self.fc3 = nn.Linear(84, num_categories)
 
     def forward(self, x):
-        return self.linear_relu_stack(x)
+        x = x.view(-1, 1, 28, 28) # Input is flatten and this turns it 2D into 28x28
+        x = self.pool(F.relu(self.conv1(x)))
+        x = self.pool(F.relu(self.conv2(x)))
+        x = torch.flatten(x, 1) # flatten all dimensions except batch
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
+        return x
+    # def __init__(self, num_categories):
+    #     super().__init__()
+    #     self.linear_relu_stack = nn.Sequential(
+    #         nn.Linear(784, 32),
+    #         nn.LeakyReLU(),
+    #         nn.Linear(32, 16),
+    #         nn.LeakyReLU(),
+    #         nn.Linear(16, num_categories) # As many outputs as there are categories
+    #     )
+
+    # def forward(self, x):
+    #     return self.linear_relu_stack(x)
 
 
 def make_new_model(num_categories):
@@ -131,7 +151,8 @@ def test_loop(dataloader, model, loss_fn):
 def train_and_save_model(model, num_epochs, learning_rate, batch_size, model_save_file_name, train_dataloader, val_dataloader, show_graph = True):
     # Training
     loss_fn = nn.CrossEntropyLoss()
-    optimizer = Adam(model.parameters(), lr=learning_rate)
+    # optimizer = Adam(model.parameters(), lr=learning_rate)
+    optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
 
     results = []
     for i in range(num_epochs):

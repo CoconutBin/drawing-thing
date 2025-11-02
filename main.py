@@ -4,7 +4,7 @@ import training
 preview_dataset = False
 batch_size = 64
 learning_rate = 1e-4
-num_epochs = 2
+num_epochs = 7
 model_file_name = 'my_model.pth'
 
 
