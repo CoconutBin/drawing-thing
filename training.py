@@ -23,10 +23,8 @@ class NeuralNetwork(nn.Module):
         self.linear_relu_stack = nn.Sequential(
             nn.Linear(784, 32),
             nn.ReLU(),
-            nn.Dropout(0.1),
             nn.Linear(32, 16),
             nn.ReLU(),
-            nn.Dropout(0.1),
             nn.Linear(16, num_categories) # As many outputs as there are categories
         )
 
