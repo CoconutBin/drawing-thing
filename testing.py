@@ -24,14 +24,8 @@ def get_answer(data):
 
     class_prob = torch.softmax(prediction, dim=0).tolist()
     
-    result = ""
+    results = []
     for i, prob in enumerate(class_prob):
-        result += f"{labels_dict[i]}: {prob*100:.2f}%" + '\n'
+        results.append(f"{labels_dict[i]}: {prob*100:.2f}%")
 
-    return result
-    
-
-    # print(f"\nFinal Answer: {labels_dict[answer]}")
-
-    # plt.imshow(data)
-    # plt.show()
+    return results

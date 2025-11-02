@@ -1,5 +1,4 @@
 /__pycache__
-/data/training/**
-/data/testing/**
+/training_data**
 /my_model.pth
 venv

@@ -15,7 +15,7 @@ fontsize = 8
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 device = "cpu"
 
-training_data_directory = "./data/training" # Old version uses "./training_data"
+training_data_directory = "./training_data"
 
 class NeuralNetwork(nn.Module):
     def __init__(self, num_categories):

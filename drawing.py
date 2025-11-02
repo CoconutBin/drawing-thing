@@ -34,10 +34,23 @@ while running:
     mouse_buttons = pygame.mouse.get_pressed()
     keys = pygame.key.get_pressed()
     
-    #draw text        
-    text = font.render(str(Guess), False, "black")
-    screen.blit(old_text, (50, 300))
-    screen.blit(text, (50, 300))
+    #collect data
+    save_image = screen.subsurface(pygame.Rect(240, 0, screenx - 240, screeny))
+    save_image = pygame.transform.smoothscale(save_image, (28, 28))
+    drawing_data = pygame.surfarray.array3d(save_image)
+    grayscale_array = np.round( # chatgpt
+        0.299 * drawing_data[:, :, 0] +
+        0.587 * drawing_data[:, :, 1] +
+        0.114 * drawing_data[:, :, 2]
+    ).astype(np.uint8)
+    
+    results = testing.get_answer(grayscale_array)
+    
+    #draw text
+    for i, result in enumerate(results):
+        text = font.render(result, False, "black")
+        # screen.blit(old_text, (50, 300))
+        screen.blit(text, (50, 300 + 50*i))
     
     #draw UI
     pygame.draw.line(screen, "black", (229, 0), (229, screeny), 21)
@@ -77,18 +90,6 @@ while running:
             pygame.draw.rect(screen, "white", (240, 0, screenx - 240, screeny))
     else:
         Erase = pygame.image.load('./assets/erase.png')
-    
-    #collect data
-    save_image = screen.subsurface(pygame.Rect(240, 0, screenx - 240, screeny))
-    save_image = pygame.transform.smoothscale(save_image, (28, 28))
-    drawing_data = pygame.surfarray.array3d(save_image)
-    grayscale_array = np.round( # chatgpt
-        0.299 * drawing_data[:, :, 0] +
-        0.587 * drawing_data[:, :, 1] +
-        0.114 * drawing_data[:, :, 2]
-    ).astype(np.uint8)
-    
-    Guess = testing.get_answer(grayscale_array)
     
     #update screen
     pygame.display.flip() 
