@@ -44,7 +44,7 @@ while running:
         0.114 * drawing_data[:, :, 2]
     ).astype(np.uint8)
     results = testing.get_answer(grayscale_array)
-    pygame.image.save(save_image, "./test.png")
+    # pygame.image.save(save_image, "./test.png")
     
     # Clear the text area
     pygame.draw.rect(screen, "white", (50, 300, 200, 50 * len(results)))
