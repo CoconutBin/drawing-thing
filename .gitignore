@@ -1,6 +1,6 @@
 /__pycache__
-/raw_training_data**
-/processed_training_data**
+/raw_training_data*
+/processed_training_data*
 /my_model.pth
 /data/testing/
 /data/training/
