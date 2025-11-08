@@ -3,7 +3,7 @@ import numpy as np
 import torch
 from torchvision import transforms
 
-transform = transforms.RandomAffine(degrees=30, translate=(0.2, 0.2), scale=(0.75, 1.105), interpolation=transforms.InterpolationMode.BILINEAR)
+transform = transforms.RandomAffine(degrees=20, translate=(0.15, 0.15), scale=(0.75, 1.105), interpolation=transforms.InterpolationMode.BILINEAR)
 
 def preprocess_raw_data():
     for i, fn in enumerate(os.listdir('raw_training_data')):

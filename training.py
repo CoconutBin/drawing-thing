@@ -5,6 +5,7 @@ import random
 
 import torch
 from torch import nn
+import torch.nn.functional as F
 from torch.optim import Adam
 from torch.utils.data import TensorDataset, DataLoader, random_split
 
@@ -16,22 +17,32 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 device = "cpu"
 
 class NeuralNetwork(nn.Module):
-    def __init__(self, num_categories):
+    def __init__(self, num_categories): # Model architecture modified from documentations https://docs.pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html
         super().__init__()
-        self.flatten = nn.Flatten()
-        self.linear_relu_stack = nn.Sequential(
-            nn.Linear(784, 32),
-            nn.ReLU(),
-            nn.Dropout(0.1),
-            nn.Linear(32, 16),
-            nn.ReLU(),
-            nn.Dropout(0.1),
-            nn.Linear(16, num_categories) # As many outputs as there are categories
-        )
+        # self.flatten = nn.Flatten()
+        # self.linear_relu_stack = nn.Sequential(
+        #     nn.Linear(784, 100),
+        #     nn.ReLU(),
+        #     # nn.Dropout(0.1),
+        #     nn.Linear(100, 64),
+        #     nn.ReLU(),
+        #     # nn.Dropout(0.1),
+        #     nn.Linear(64, num_categories) # As many outputs as there are categories
+        # )
+        self.conv1 = nn.Conv2d(1, 2, 5) # [28, 28, 1] -> [24, 24, 2]
+        self.pool1 = nn.MaxPool2d(2, 2) # [24, 24, 2] -> [12, 12, 2]
+        self.conv2 = nn.Conv2d(2, 4, 3) # [12, 12, 2] -> [10, 10, 4]
+        self.pool2 = nn.MaxPool2d(2, 2) # [10, 10, 2] -> [5, 5, 4]
+        self.fc1 = nn.Linear(5 * 5 * 4, 100)
+        self.fc2 = nn.Linear(100, num_categories) # As many outputs as there are categories
 
     def forward(self, x):
-        x = self.flatten(x) # [28, 28] -> [784]
-        return self.linear_relu_stack(x)
+        x = self.pool1(F.relu(self.conv1(x)))
+        x = self.pool2(F.sigmoid(self.conv2(x)))
+        x = torch.flatten(x, 1)
+        x = F.relu(self.fc1(x))
+        x = self.fc2(x)
+        return x
 
 
 def make_new_model(num_categories):
@@ -214,11 +225,16 @@ def random_preview_model(model, val_dataset, labels_dict, title):
         for j in range(plots_size):
             random_index = random.randint(0, len(val_dataset)-1)
             image, label = val_dataset[random_index]
+            print(image.shape)
+            
+            image = image.unsqueeze(0)
+            print(image.shape)
             
             prediction = torch.argmax(model(image)).item()
             
             color = 'green' if prediction == label.item() else 'red'
             
+            image = image.squeeze(0) # Removes the channel [-> 1 <-, 1, 28, 28]
             image = image.squeeze(0) # Removes the channel [-> 1 <-, 28, 28]
             axs[i, j].imshow(image.cpu())
             
