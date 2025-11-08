@@ -56,13 +56,19 @@ while running:
         0.114 * drawing_data[:, :, 2]
     ).astype(np.uint8)
     
+    #store mouse pos(s)
+    mouse_pos_x = mouse_pos[0] - 810
+    mouse_pos_y = mouse_pos[1] - 150
+    mouse_last_pos_x = mouse_last_pos[0] - 810
+    mouse_last_pos_y = mouse_last_pos[1] - 150
+    
     #clone drawing
     pygame.Surface.blit(screen.subsurface(ai_canva), pygame.transform.scale(save_image, (420, 420)), (0, 0))
     
-    if mouse_down:
+    if (mouse_down) & (canva.collidepoint(mouse_pos)):
         results = testing.get_answer(grayscale_array)
         # Clear the text area
-        pygame.draw.rect(screen, bg_color, (50, 300, 200, 50 * len(results)))
+        pygame.draw.rect(screen, bg_color, (50, 300, 290, 50 * len(results)))
 
         # Draw new results
         for i, result in enumerate(results):
@@ -70,12 +76,6 @@ while running:
 
     #draw UI
     screen.blit(Erase, (108, 150))
-    
-    #store mouse pos(s)
-    mouse_pos_x = mouse_pos[0] - 810
-    mouse_pos_y = mouse_pos[1] - 150
-    mouse_last_pos_x = mouse_last_pos[0] - 810
-    mouse_last_pos_y = mouse_last_pos[1] - 150
     
     #draw
     if (mouse_buttons[0]):
