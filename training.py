@@ -5,8 +5,6 @@ import random
 
 import torch
 from torch import nn
-import torch.optim as optim
-import torch.nn.functional as F
 from torch.optim import Adam
 from torch.utils.data import TensorDataset, DataLoader, random_split
 
@@ -17,39 +15,23 @@ fontsize = 8
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 device = "cpu"
 
-training_data_directory = "./training_data"
-
 class NeuralNetwork(nn.Module):
     def __init__(self, num_categories):
         super().__init__()
-        self.conv1 = nn.Conv2d(1, 6, 5)
-        self.pool = nn.MaxPool2d(2, 2)
-        self.conv2 = nn.Conv2d(6, 16, 5)
-        self.fc1 = nn.Linear(16 * 4 * 4, 120)
-        self.fc2 = nn.Linear(120, 84)
-        self.fc3 = nn.Linear(84, num_categories)
+        self.flatten = nn.Flatten()
+        self.linear_relu_stack = nn.Sequential(
+            nn.Linear(784, 32),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.Linear(32, 16),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.Linear(16, num_categories) # As many outputs as there are categories
+        )
 
     def forward(self, x):
-        x = x.view(-1, 1, 28, 28) # Input is flatten and this turns it 2D into 28x28
-        x = self.pool(F.relu(self.conv1(x)))
-        x = self.pool(F.relu(self.conv2(x)))
-        x = torch.flatten(x, 1) # flatten all dimensions except batch
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        x = self.fc3(x)
-        return x
-    # def __init__(self, num_categories):
-    #     super().__init__()
-    #     self.linear_relu_stack = nn.Sequential(
-    #         nn.Linear(784, 32),
-    #         nn.LeakyReLU(),
-    #         nn.Linear(32, 16),
-    #         nn.LeakyReLU(),
-    #         nn.Linear(16, num_categories) # As many outputs as there are categories
-    #     )
-
-    # def forward(self, x):
-    #     return self.linear_relu_stack(x)
+        x = self.flatten(x) # [28, 28] -> [784]
+        return self.linear_relu_stack(x)
 
 
 def make_new_model(num_categories):
@@ -68,14 +50,12 @@ def prepare_dataset_and_labels(batch_size):
     datas_array = []
     labels_array = []
     
-    for i, fn in enumerate(os.listdir(training_data_directory)):
-        data = np.load(f"{training_data_directory}/{fn}")
-        
-        # Convert to tensor
-        data_tensor = torch.tensor(data)
+    for i, fn in enumerate(os.listdir('processed_training_data')):
+        data_tensor = torch.load(f"processed_training_data/{fn}") # shape is [N, 1, 28, 28], 1 is the color channels
         data_tensor = data_tensor / 255 # Normalize from 0-255 to 0-1
         
-        # Makes a tensor with just the label of this data (i)
+        print(data_tensor.shape)
+        
         label_tensor = torch.full((len(data_tensor),), i)
         
         datas_array.append(data_tensor)
@@ -83,7 +63,26 @@ def prepare_dataset_and_labels(batch_size):
         
         # Get name of this file and add to a dictionary for later labelling
         under_score_index = fn.rfind('_')
-        labels_dict[i] = fn[under_score_index+1:-4] # -4 removes the '.npy'
+        labels_dict[i] = fn[under_score_index+1:-3] # -3 removes the '.pt'
+    
+    # for i, fn in enumerate(os.listdir('training_data')):
+    #     data = np.load(f"training_data/{fn}")
+    #     data = np.reshape(data, [len(data), 28, 28]) # Reshape into 2D array to be able to random rotate
+        
+    #     # Convert to tensor
+    #     data_tensor = torch.tensor(data)
+    #     data_tensor = data_tensor / 255 # Normalize from 0-255 to 0-1
+    #     data_tensor = torch.tensor(data, dtype=torch.float32).unsqueeze(1)  # [N, 1, 28, 28]
+    #     print(data_tensor.shape)
+    #     # Makes a tensor with just the label of this data (i)
+    #     label_tensor = torch.full((len(data_tensor),), i)
+        
+    #     datas_array.append(data_tensor)
+    #     labels_array.append(label_tensor)
+        
+    #     # Get name of this file and add to a dictionary for later labelling
+    #     under_score_index = fn.rfind('_')
+    #     labels_dict[i] = fn[under_score_index+1:-4] # -4 removes the '.npy'
 
     X = torch.cat(datas_array, dim=0).to(device) # Combines data into one big tensor with shape like [index, pixels]
     y = torch.cat(labels_array, dim=0).to(device) # Combines labels into one big label tensor for each index with shape [index]
@@ -151,8 +150,7 @@ def test_loop(dataloader, model, loss_fn):
 def train_and_save_model(model, num_epochs, learning_rate, batch_size, model_save_file_name, train_dataloader, val_dataloader, show_graph = True):
     # Training
     loss_fn = nn.CrossEntropyLoss()
-    # optimizer = Adam(model.parameters(), lr=learning_rate)
-    optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
+    optimizer = Adam(model.parameters(), lr=learning_rate)
 
     results = []
     for i in range(num_epochs):
@@ -198,8 +196,8 @@ def random_preview_train_dataset(train_dataset: torch.utils.data.Dataset, labels
         for j in range(plots_size):
             random_index = random.randint(0, len(train_dataset))
             image, label = train_dataset[random_index]
-            image = image.reshape([28, 28]) # Reshape into 2D array to be able to show as image
             
+            image = image.squeeze(0) # Removes the channel [-> 1 <-, 28, 28]
             axs[i, j].imshow(image.cpu())
             axs[i, j].set_title(labels_dict[label.item()], fontsize=fontsize)
             axs[i, j].axis("off")
@@ -215,15 +213,13 @@ def random_preview_model(model, val_dataset, labels_dict, title):
     for i in range(plots_size):
         for j in range(plots_size):
             random_index = random.randint(0, len(val_dataset)-1)
-            
             image, label = val_dataset[random_index]
             
             prediction = torch.argmax(model(image)).item()
             
-            image = image.reshape([28, 28]) # Reshape into 2D array to be able to show as image
-            
             color = 'green' if prediction == label.item() else 'red'
             
+            image = image.squeeze(0) # Removes the channel [-> 1 <-, 28, 28]
             axs[i, j].imshow(image.cpu())
             
             axs[i, j].set_title(f"{labels_dict[prediction]}?\nA: {labels_dict[label.item()]}", fontsize=fontsize, color=color)
