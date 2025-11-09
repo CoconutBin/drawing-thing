@@ -29,7 +29,8 @@ def get_answer(data):
     data_tensor = 1 - ((data_tensor - data_tensor.min()) / (data_tensor.max() - data_tensor.min() + 1e-12))
     data_tensor = torch.clamp(data_tensor, 0, 1)
     
-    data_tensor = data_tensor.unsqueeze(0) # Turns the shape [28, 28] -> [1, 28, 28] torch model needs to format to be this way
+    data_tensor = data_tensor.unsqueeze(0) # Turns the shape [28, 28] -> [1, 28, 28]
+    data_tensor = data_tensor.unsqueeze(0) # Turns the shape [1, 28, 28] -> [1, 1, 28, 28] torch model needs to format to be this way
     print(data_tensor.shape)
     prediction = model(data_tensor)
 
