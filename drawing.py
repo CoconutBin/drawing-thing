@@ -21,7 +21,7 @@ pygame.draw.rect(screen, "white", canva)
 pygame.draw.rect(screen, "white", ai_canva)
 
 
-rendering_text('My guess',36,50,250)
+rendering_text('MY GUESS',36,95,250)
 rendering_text('Canva',26,990,580)
 rendering_text("AI's view",26,500,580)
 
@@ -30,7 +30,7 @@ mouse_down = False
 
 Erase = pygame.image.load('./assets/erase.png')
 Erase_size = (124,52)
-Erase_hitbox = pygame.Rect(108, 150, Erase_size[0], Erase_size[1])
+Erase_hitbox = (108, 160)
 
 #loop
 running = True
@@ -65,17 +65,26 @@ while running:
     #clone drawing
     pygame.Surface.blit(screen.subsurface(ai_canva), pygame.transform.scale(save_image, (420, 420)), (0, 0))
     
+    
+    #draw results
+    arranged_result = []
     if (mouse_down) & (canva.collidepoint(mouse_pos)):
         results = testing.get_answer(grayscale_array)
+        for result in results:
+            breakdown_result = result.split(': ')
+            arranged_result.append([-1*float(breakdown_result[1][:-1:]),breakdown_result[0]])
+        arranged_result = sorted(arranged_result)
+        
         # Clear the text area
         pygame.draw.rect(screen, bg_color, (50, 300, 290, 50 * len(results)))
 
         # Draw new results
-        for i, result in enumerate(results):
-            rendering_text(result,36,50,300 + 50 * i)
+        for i, result in enumerate(arranged_result):
+            rendering_text(result[1]+': '+str(-1*result[0])+'%',36 - round(0.5 * len(result[1])),50,300 + 50 * i)
+            if i > 3 :break
 
     #draw UI
-    screen.blit(Erase, (108, 150))
+    screen.blit(Erase, Erase_hitbox)
     
     #draw
     if (mouse_buttons[0]):
@@ -90,7 +99,7 @@ while running:
         mouse_down = False
     
     #erase
-    if Erase_hitbox.collidepoint(mouse_pos):
+    if pygame.Rect(Erase_hitbox[0], Erase_hitbox[1], Erase_size[0], Erase_size[1]).collidepoint(mouse_pos):
         Erase = pygame.image.load('./assets/erase2.png')
         if mouse_buttons[0]:
             pygame.draw.rect(screen.subsurface(canva), "white", (0, 0, screenx, screeny))
