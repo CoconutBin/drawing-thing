@@ -6,7 +6,7 @@ import random
 import torch
 from torch import nn
 import torch.nn.functional as F
-from torch.optim import Adam
+from torch import optim
 from torch.utils.data import TensorDataset, DataLoader, random_split
 
 plots_size = 7
@@ -30,19 +30,22 @@ class NeuralNetwork(nn.Module):
         #     # nn.Dropout(0.1),
         #     nn.Linear(64, num_categories) # As many outputs as there are categories
         # )
+        
         self.conv1 = nn.Conv2d(1, 2, 5) # [28, 28, 1] -> [24, 24, 2]
         self.pool1 = nn.MaxPool2d(2, 2) # [24, 24, 2] -> [12, 12, 2]
         self.conv2 = nn.Conv2d(2, 4, 3) # [12, 12, 2] -> [10, 10, 4]
         self.pool2 = nn.MaxPool2d(2, 2) # [10, 10, 2] -> [5, 5, 4]
-        self.fc1 = nn.Linear(5 * 5 * 4, 100)
-        self.fc2 = nn.Linear(100, num_categories) # As many outputs as there are categories
+        self.fc1 = nn.Linear(5 * 5 * 4, 200)
+        self.fc2 = nn.Linear(200, 100)
+        self.fc3 = nn.Linear(100, num_categories) # As many outputs as there are categories
 
     def forward(self, x):
         x = self.pool1(F.relu(self.conv1(x)))
         x = self.pool2(F.sigmoid(self.conv2(x)))
         x = torch.flatten(x, 1)
         x = F.relu(self.fc1(x))
-        x = self.fc2(x)
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
         return x
 
 
@@ -159,10 +162,11 @@ def test_loop(dataloader, model, loss_fn):
     return accuracy, test_loss
 
 
-def train_and_save_model(model, num_epochs, learning_rate, batch_size, model_save_file_name, train_dataloader, val_dataloader, show_graph = True):
+def train_and_save_model(model, num_epochs, learning_rate, momentum, batch_size, model_save_file_name, train_dataloader, val_dataloader, show_graph = True):
     # Training
     loss_fn = nn.CrossEntropyLoss()
-    optimizer = Adam(model.parameters(), lr=learning_rate)
+    optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
+    # optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     results = []
     for i in range(num_epochs):
