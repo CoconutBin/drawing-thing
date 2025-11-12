@@ -19,18 +19,6 @@ device = "cpu"
 class NeuralNetwork(nn.Module):
     def __init__(self, num_categories): # Model architecture modified from documentations https://docs.pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html
         super().__init__()
-
-        # self.flatten = nn.Flatten()
-        # self.linear_relu_stack = nn.Sequential(
-        #     nn.Linear(784, 100),
-        #     nn.ReLU(),
-        #     # nn.Dropout(0.1),
-        #     nn.Linear(100, 64),
-        #     nn.ReLU(),
-        #     # nn.Dropout(0.1),
-        #     nn.Linear(64, num_categories) # As many outputs as there are categories
-        # )
-        
         self.conv1 = nn.Conv2d(1, 2, 5) # [28, 28, 1] -> [24, 24, 2]
         self.pool1 = nn.MaxPool2d(2, 2) # [24, 24, 2] -> [12, 12, 2]
         self.conv2 = nn.Conv2d(2, 4, 3) # [12, 12, 2] -> [10, 10, 4]
@@ -79,25 +67,6 @@ def prepare_dataset_and_labels(batch_size):
         # Get name of this file and add to a dictionary for later labelling
         under_score_index = fn.rfind('_')
         labels_dict[i] = fn[under_score_index+1:-3] # -3 removes the '.pt'
-    
-    # for i, fn in enumerate(os.listdir('training_data')):
-    #     data = np.load(f"training_data/{fn}")
-    #     data = np.reshape(data, [len(data), 28, 28]) # Reshape into 2D array to be able to random rotate
-        
-    #     # Convert to tensor
-    #     data_tensor = torch.tensor(data)
-    #     data_tensor = data_tensor / 255 # Normalize from 0-255 to 0-1
-    #     data_tensor = torch.tensor(data, dtype=torch.float32).unsqueeze(1)  # [N, 1, 28, 28]
-    #     print(data_tensor.shape)
-    #     # Makes a tensor with just the label of this data (i)
-    #     label_tensor = torch.full((len(data_tensor),), i)
-        
-    #     datas_array.append(data_tensor)
-    #     labels_array.append(label_tensor)
-        
-    #     # Get name of this file and add to a dictionary for later labelling
-    #     under_score_index = fn.rfind('_')
-    #     labels_dict[i] = fn[under_score_index+1:-4] # -4 removes the '.npy'
 
     X = torch.cat(datas_array, dim=0).to(device) # Combines data into one big tensor with shape like [index, pixels]
     y = torch.cat(labels_array, dim=0).to(device) # Combines labels into one big label tensor for each index with shape [index]
@@ -163,7 +132,7 @@ def test_loop(dataloader, model, loss_fn):
     return accuracy, test_loss
 
 
-def train_and_save_model(model, num_epochs, learning_rate, momentum, batch_size, model_save_file_name, train_dataloader, val_dataloader, show_graph = True):
+def train_and_save_model(model, num_epochs, learning_rate, batch_size, model_save_file_name, train_dataloader, val_dataloader, show_graph = True):
     # Training
     loss_fn = nn.CrossEntropyLoss()
     # optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
