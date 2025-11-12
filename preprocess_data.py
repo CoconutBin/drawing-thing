@@ -20,5 +20,4 @@ def preprocess_raw_data():
         torch.save(data_tensor, f"processed_training_data/{fn[:-4]}.pt")
         
         print(f"Finished preprocess for {fn}")
-
-preprocess_raw_data()
+        
