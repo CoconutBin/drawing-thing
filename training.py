@@ -129,8 +129,9 @@ def train_loop(dataloader, model, loss_fn, optimizer, batch_size): # Modified fr
         loss.backward()
         optimizer.step()
 
-        if batch % (batch_size*12) == 0:
-            loss, current = loss.item(), batch * batch_size + len(X)
+        if batch % ((size//batch_size) // (10-1)) == 0: # there is (size//batch_size) batches in enumerate(dataloader)
+            loss = loss.item()
+            current = batch * batch_size + len(X)
             print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
     
     return running_loss / len(dataloader) # Average training loss
@@ -165,8 +166,9 @@ def test_loop(dataloader, model, loss_fn):
 def train_and_save_model(model, num_epochs, learning_rate, momentum, batch_size, model_save_file_name, train_dataloader, val_dataloader, show_graph = True):
     # Training
     loss_fn = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
-    # optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    # optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
+    # optimizer = optim.Adadelta(model.parameters(), lr=learning_rate)
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     results = []
     for i in range(num_epochs):

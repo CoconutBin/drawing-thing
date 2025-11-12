@@ -2,10 +2,10 @@ import os
 import training
 
 preview_dataset = False
-batch_size = 64
-learning_rate = 1e-3
-momentum = 0.9
-num_epochs = 16
+batch_size = 256
+learning_rate = 2e-4
+# momentum = 0.9
+num_epochs = 12
 model_file_name = 'my_model.pth'
 
 
