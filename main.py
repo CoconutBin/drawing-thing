@@ -3,9 +3,9 @@ import training
 
 preview_dataset = False
 batch_size = 256
-learning_rate = 2e-4
-# momentum = 0.9 # unused with ADAM
-num_epochs = 12
+learning_rate = 1e-4
+momentum = 0.9 # unused with ADAM
+num_epochs = 6
 model_file_name = 'my_model.pth'
 
 
@@ -18,7 +18,7 @@ if not os.path.isfile(model_file_name): # No saved
     training.random_preview_model(model, val_dataset, labels_dict, title="Before Train")
     
     # Training
-    results = training.train_and_save_model(model, num_epochs, learning_rate, batch_size, model_file_name,
+    results = training.train_and_save_model(model, num_epochs, learning_rate, momentum, batch_size, model_file_name,
                                          train_dataloader, val_dataloader, show_graph=True)
     
     training.random_preview_model(model, val_dataset, labels_dict, title="After Train")

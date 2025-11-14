@@ -14,6 +14,10 @@ labels_dict = {
 _,_,_,_, labels_dict = training.prepare_dataset_and_labels(batch_size=64)
 model = training.load_model(model_file_name, num_categories=len(labels_dict))
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+model.eval()
+
 print(labels_dict)
 # test = cv2.imread('test.png', 0)
 # test = test.reshape([28, 28])
@@ -25,18 +29,18 @@ print(labels_dict)
 
 def get_answer(data):
     # Convert to tensor
-    data_tensor = torch.tensor(data)
+    data_tensor = torch.tensor(data).to(device)
     data_tensor = 1 - ((data_tensor - data_tensor.min()) / (data_tensor.max() - data_tensor.min() + 1e-12))
     data_tensor = torch.clamp(data_tensor, 0, 1)
     
     data_tensor = data_tensor.unsqueeze(0) # Turns the shape [28, 28] -> [1, 28, 28]
     data_tensor = data_tensor.unsqueeze(0) # Turns the shape [1, 28, 28] -> [1, 1, 28, 28] torch model needs to format to be this way
-    print(data_tensor.shape)
+    # print(data_tensor.shape)
     prediction = model(data_tensor)
 
-    print(prediction)
+    # print(prediction)
     class_prob = torch.softmax(prediction, dim=1).tolist()
-    print(class_prob)
+    # print(class_prob)
     # print(data_tensor)
     
     # plt.imshow(data_tensor.reshape([28, 28]))

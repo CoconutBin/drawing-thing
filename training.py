@@ -14,27 +14,61 @@ figsize = 8
 fontsize = 8
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-device = "cpu"
+# device = "cpu"
 
 class NeuralNetwork(nn.Module):
     def __init__(self, num_categories): # Model architecture modified from documentations https://docs.pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html
+    #     super().__init__()
+    #     self.conv1 = nn.Conv2d(1, 2, 5) # [28, 28, 1] -> [24, 24, 2]
+    #     self.pool1 = nn.MaxPool2d(2, 2) # [24, 24, 2] -> [12, 12, 2]
+    #     self.conv2 = nn.Conv2d(2, 4, 3) # [12, 12, 2] -> [10, 10, 4]
+    #     self.pool2 = nn.MaxPool2d(2, 2) # [10, 10, 2] -> [5, 5, 4]
+    #     self.fc1 = nn.Linear(5 * 5 * 4, 32)
+    #     # self.fc2 = nn.Linear(200, 100)
+    #     self.fc3 = nn.Linear(32, num_categories) # As many outputs as there are categories
+
+    # def forward(self, x):
+    #     x = self.pool1(F.relu(self.conv1(x)))
+    #     x = self.pool2(F.sigmoid(self.conv2(x)))
+    #     x = torch.flatten(x, 1)
+    #     x = F.relu(self.fc1(x))
+    #     # x = F.relu(self.fc2(x))
+    #     x = self.fc3(x)
+    #     return x
+    
         super().__init__()
-        self.conv1 = nn.Conv2d(1, 2, 5) # [28, 28, 1] -> [24, 24, 2]
-        self.pool1 = nn.MaxPool2d(2, 2) # [24, 24, 2] -> [12, 12, 2]
-        self.conv2 = nn.Conv2d(2, 4, 3) # [12, 12, 2] -> [10, 10, 4]
-        self.pool2 = nn.MaxPool2d(2, 2) # [10, 10, 2] -> [5, 5, 4]
-        self.fc1 = nn.Linear(5 * 5 * 4, 200)
-        self.fc2 = nn.Linear(200, 100)
-        self.fc3 = nn.Linear(100, num_categories) # As many outputs as there are categories
+        self.conv1 = nn.Conv2d(1, 8, 5) # [28, 28, 1] -> [24, 24, 8]
+        self.pool1 = nn.MaxPool2d(2, 2) # [24, 24, 8] -> [12, 12, 8]
+        self.conv1_bn = nn.BatchNorm2d(8)
+        self.conv2 = nn.Conv2d(8, 12, 3) # [12, 12, 8] -> [10, 10, 12]
+        self.pool2 = nn.MaxPool2d(2, 2) # [10, 10, 12] -> [5, 5, 12]
+        self.conv2_bn = nn.BatchNorm2d(12)
+        self.fc1 = nn.Linear(5 * 5 * 12, 20*num_categories)
+        self.dropout2 = nn.Dropout(0.8)
+        # self.fc2 = nn.Linear(500, 200)
+        self.fc3 = nn.Linear(20*num_categories, num_categories) # As many outputs as there are categories
 
     def forward(self, x):
-        x = self.pool1(F.relu(self.conv1(x)))
-        x = self.pool2(F.sigmoid(self.conv2(x)))
+        x = self.conv1(x)
+        x = F.relu(self.pool1(x))
+        x = self.conv1_bn(x)
+        x = self.conv2(x)
+        x = F.relu(self.pool2(x))
+        x = self.conv2_bn(x)
         x = torch.flatten(x, 1)
         x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
+        x = self.dropout2(x)
+        # x = F.relu(self.fc2(x))
         x = self.fc3(x)
         return x
+        
+        # x = F.relu(self.pool1((self.conv1(x))))
+        # x = self.pool2(self.conv2_bn(self.conv2(x)))
+        # x = torch.flatten(x, 1)
+        # x = F.relu(self.fc1(x))
+        # # x = F.relu(self.fc2(x))
+        # x = self.fc3(x)
+        # return x
 
 
 def make_new_model(num_categories):
@@ -72,9 +106,12 @@ def prepare_dataset_and_labels(batch_size):
     y = torch.cat(labels_array, dim=0).to(device) # Combines labels into one big label tensor for each index with shape [index]
 
     my_dataset = TensorDataset(X, y)
-    train_dataset, val_dataset = random_split(my_dataset, [0.8, 0.2])
+    train_dataset, val_dataset = random_split(my_dataset, [0.95, 0.05])
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+    
+    print(len(train_dataset))
+    print(len(val_dataset))
     
     return train_dataset, val_dataset, train_dataloader, val_dataloader, labels_dict
 
@@ -101,7 +138,7 @@ def train_loop(dataloader, model, loss_fn, optimizer, batch_size): # Modified fr
         if batch % ((size//batch_size) // (10-1)) == 0: # there is (size//batch_size) batches in enumerate(dataloader)
             loss = loss.item()
             current = batch * batch_size + len(X)
-            print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
+            print(f"Training loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
     
     return running_loss / len(dataloader) # Average training loss
 
@@ -132,12 +169,12 @@ def test_loop(dataloader, model, loss_fn):
     return accuracy, test_loss
 
 
-def train_and_save_model(model, num_epochs, learning_rate, batch_size, model_save_file_name, train_dataloader, val_dataloader, show_graph = True):
+def train_and_save_model(model, num_epochs, learning_rate, momentum, batch_size, model_save_file_name, train_dataloader, val_dataloader, show_graph = True):
     # Training
     loss_fn = nn.CrossEntropyLoss()
-    # optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
+    optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
     # optimizer = optim.Adadelta(model.parameters(), lr=learning_rate)
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    # optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     results = []
     for i in range(num_epochs):
@@ -195,16 +232,16 @@ def random_preview_train_dataset(train_dataset: torch.utils.data.Dataset, labels
 
 
 def random_preview_model(model, val_dataset, labels_dict, title):
+    model.eval()
+    
     fig, axs = plt.subplots(plots_size, plots_size, figsize=(figsize, figsize))
     fig.tight_layout()
     for i in range(plots_size):
         for j in range(plots_size):
             random_index = random.randint(0, len(val_dataset)-1)
             image, label = val_dataset[random_index]
-            print(image.shape)
             
             image = image.unsqueeze(0)
-            print(image.shape)
             
             prediction = torch.argmax(model(image)).item()
             
