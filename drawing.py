@@ -3,10 +3,13 @@ import pygame.freetype
 import numpy as np
 import testing
 import main
+import time
 import os
 import preprocess_data as ppdt
 import torch
 from torchvision import transforms
+import tkinter as tk
+from tkinter import messagebox
 
 #setup
 
@@ -23,7 +26,19 @@ def button(size, pos, file, file2):
     else:
         screen.blit(file, pos)
     return False
-    
+
+Popup = messagebox.askyesno("Import New Data", "Do you want to import new data?")
+if Popup:
+    os.startfile("raw_training_data")
+    time.sleep(1)
+    messagebox.showinfo("", "Finished?")
+    for file in os.listdir("processed_training_data"):
+        file_path = os.path.join("processed_training_data", file)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+    ppdt.preprocess_raw_data()
+    main.Main()
+
 pygame.init()
 screenx, screeny = 1280, 720
 screen = pygame.display.set_mode((screenx, screeny))
@@ -33,7 +48,6 @@ ai_canva = pygame.Rect(340, 150, 420, 420)
 canva = pygame.Rect(810, 150, 420, 420)
 pygame.draw.rect(screen, "white", canva)
 pygame.draw.rect(screen, "white", ai_canva)
-
 
 rendering_text('MY GUESS',36,95,250)
 rendering_text('Canva',26,990,580)
@@ -109,23 +123,6 @@ while running:
     if button((124,52), (108, 160), pygame.image.load('./assets/erase.png'), pygame.image.load('./assets/erase2.png')):
         pygame.draw.rect(screen.subsurface(canva), "white", (0, 0, screenx, screeny))
         pygame.draw.rect(screen, bg_color, (50, 300, 290, 50 * len(results)))
-        
-    if button((154,52), (108, 580), pygame.image.load('./assets/import.png'), pygame.image.load('./assets/import2.png')):
-        os.startfile("raw_training_data")
-    
-    if button((130,52), (108, 650), pygame.image.load('./assets/train.png'), pygame.image.load('./assets/train2.png')):
-        for file in os.listdir("processed_training_data"):
-            file_path = os.path.join("processed_training_data", file)
-            if os.path.isfile(file_path):
-                os.remove(file_path)
-        ppdt.preprocess_raw_data()
-        main.Main()
-        screen = pygame.display.set_mode((screenx, screeny))
-        screen.fill(bg_color)
-        pygame.draw.rect(screen, "white", canva)
-        pygame.draw.rect(screen, "white", ai_canva)
-    
-        
         
     #update screen
     pygame.display.flip() 

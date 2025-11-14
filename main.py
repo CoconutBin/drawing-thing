@@ -8,10 +8,10 @@ learning_rate = 2e-4
 num_epochs = 12
 model_file_name = 'my_model.pth'
 
-
-train_dataset, val_dataset, train_dataloader, val_dataloader, labels_dict = training.prepare_dataset_and_labels(batch_size=batch_size)
-
 def Main():
+    
+    train_dataset, val_dataset, train_dataloader, val_dataloader, labels_dict = training.prepare_dataset_and_labels(batch_size=batch_size)
+    
     if not os.path.isfile(model_file_name): # No saved
         model = training.make_new_model(num_categories=len(labels_dict))
     
