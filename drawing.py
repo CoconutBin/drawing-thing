@@ -49,7 +49,6 @@ def Main():
 
     training.random_preview_model(model, val_dataset, labels_dict, title="After Train")
     
-    testing.labels_dict = labels_dict
 
 Popup = messagebox.askyesno("Import New Data", "Do you want to import new data?")
 if Popup:
@@ -62,6 +61,8 @@ if Popup:
             os.remove(file_path)
     ppdt.preprocess_raw_data()
     Main()
+
+testing.prepare_shit()
 
 pygame.init()
 screenx, screeny = 1280, 720

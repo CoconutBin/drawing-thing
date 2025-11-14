@@ -6,19 +6,25 @@ import torch
 
 model_file_name = 'my_model.pth'
 
-labels_dict = {
-    0: 'cake',
-    1: 'cat',
-    2: 'tornado',
-}
+labels_dict = {}
+
 # _,_,_,_, labels_dict = training.prepare_dataset_and_labels(batch_size=64)
-model = training.load_model(model_file_name, num_categories=len(labels_dict))
+model = None
+device = None
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+def prepare_shit():
+    global device
+    global labels_dict
+    global model
+    
+    _,_,_,_, labels_dict = training.prepare_dataset_and_labels(batch_size=64)
+    model = training.load_model(model_file_name, num_categories=len(labels_dict))
 
-model.eval()
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-print(labels_dict)
+    model.eval()
+
+    print(labels_dict)
 # test = cv2.imread('test.png', 0)
 # test = test.reshape([28, 28])
 
