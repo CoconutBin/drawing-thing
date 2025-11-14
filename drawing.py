@@ -16,8 +16,8 @@ import training
 preview_dataset = False
 batch_size = 256
 learning_rate = 2e-4
-# momentum = 0.9 # unused with ADAM
-num_epochs = 1
+momentum = 0.9 # unused with ADAM
+num_epochs = 6
 model_file_name = 'my_model.pth'
 
 def rendering_text(x,y,posx,posy):
@@ -37,30 +37,17 @@ def button(size, pos, file, file2):
 def Main():
     
     train_dataset, val_dataset, train_dataloader, val_dataloader, labels_dict = training.prepare_dataset_and_labels(batch_size=batch_size)
-    
-    if not os.path.isfile(model_file_name): # No saved
-        model = training.make_new_model(num_categories=len(labels_dict))
-    
-        # training.random_preview_train_dataset(train_dataset, labels_dict)
-        training.random_preview_model(model, val_dataset, labels_dict, title="Before Train")
-    
-        # Training
-        results = training.train_and_save_model(model, num_epochs, learning_rate, batch_size, model_file_name,
-                                             train_dataloader, val_dataloader, show_graph=True)
-    
-        training.random_preview_model(model, val_dataset, labels_dict, title="After Train")
-    else:
-        os.remove(model_file_name)
-        model = training.make_new_model(num_categories=len(labels_dict))
-    
-        # training.random_preview_train_dataset(train_dataset, labels_dict)
-        training.random_preview_model(model, val_dataset, labels_dict, title="Before Train")
-    
-        # Training
-        results = training.train_and_save_model(model, num_epochs, learning_rate, batch_size, model_file_name,
-                                             train_dataloader, val_dataloader, show_graph=True)
-    
-        training.random_preview_model(model, val_dataset, labels_dict, title="After Train")
+    os.remove(model_file_name)
+    model = training.make_new_model(num_categories=len(labels_dict))
+
+    # training.random_preview_train_dataset(train_dataset, labels_dict)
+    training.random_preview_model(model, val_dataset, labels_dict, title="Before Train")
+
+    # Training
+    results = training.train_and_save_model(model, num_epochs, learning_rate, momentum, batch_size, model_file_name,
+                                         train_dataloader, val_dataloader, show_graph=False)
+
+    training.random_preview_model(model, val_dataset, labels_dict, title="After Train")
 
 Popup = messagebox.askyesno("Import New Data", "Do you want to import new data?")
 if Popup:
@@ -167,6 +154,7 @@ while running:
         Erase = pygame.image.load('./assets/erase2.png')
         if mouse_buttons[0]:
             pygame.draw.rect(screen.subsurface(canva), "white", (0, 0, screenx, screeny))
+            pygame.draw.rect(screen, bg_color, (50, 300, 290, 50 * len(results)))
     else:
         Erase = pygame.image.load('./assets/erase.png')
     

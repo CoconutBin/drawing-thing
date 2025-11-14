@@ -3,9 +3,9 @@ import numpy as np
 import torch
 from torchvision import transforms
 
-transform = transforms.RandomAffine(degrees=15, translate=(0.15, 0.15), scale=(0.65, 0.8), interpolation=transforms.InterpolationMode.BILINEAR)
 
 def preprocess_raw_data():
+    transform = transforms.RandomAffine(degrees=15, translate=(0.15, 0.15), scale=(0.65, 0.8), interpolation=transforms.InterpolationMode.BILINEAR)
     print("Processing...")
     for i, fn in enumerate(os.listdir('raw_training_data')):
         data = np.load(f"raw_training_data/{fn}")
@@ -21,5 +21,3 @@ def preprocess_raw_data():
         torch.save(data_tensor, f"processed_training_data/{fn[:-4]}.pt")
         
         print(f"Finished preprocess for {fn}")
-
-preprocess_raw_data()
