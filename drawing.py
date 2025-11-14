@@ -2,11 +2,6 @@ import pygame
 import pygame.freetype
 import numpy as np
 import testing
-import main
-import os
-import preprocess_data as ppdt
-import torch
-from torchvision import transforms
 
 #setup
 
@@ -14,15 +9,6 @@ def rendering_text(x,y,posx,posy):
     font = pygame.freetype.SysFont('Arial', y)
     text, rect = font.render(x,(255, 255, 255))
     screen.blit(text, (posx, posy))
-    
-def button(size, pos, file, file2):
-    if pygame.Rect(pos[0], pos[1], size[0], size[1]).collidepoint(mouse_pos):
-        screen.blit(file2, pos)
-        if mouse_buttons[0]:
-            return True
-    else:
-        screen.blit(file, pos)
-    return False
     
 pygame.init()
 screenx, screeny = 1280, 720
@@ -41,6 +27,10 @@ rendering_text("AI's view",26,500,580)
 
 mouse_last_pos = (0.0, 0.0)
 mouse_down = False
+
+Erase = pygame.image.load('./assets/erase.png')
+Erase_size = (124,52)
+Erase_hitbox = (108, 160)
 
 #loop
 running = True
@@ -92,6 +82,9 @@ while running:
         for i, result in enumerate(arranged_result):
             rendering_text(result[1]+': '+str(-1*result[0])+'%',36 - round(0.5 * len(result[1])),50,300 + 50 * i)
             if i > 3 :break
+
+    #draw UI
+    screen.blit(Erase, Erase_hitbox)
     
     #draw
     if (mouse_buttons[0]):
@@ -106,27 +99,13 @@ while running:
         mouse_down = False
     
     #erase
-    if button((124,52), (108, 160), pygame.image.load('./assets/erase.png'), pygame.image.load('./assets/erase2.png')):
-        pygame.draw.rect(screen.subsurface(canva), "white", (0, 0, screenx, screeny))
-        pygame.draw.rect(screen, bg_color, (50, 300, 290, 50 * len(results)))
-        
-    if button((154,52), (108, 580), pygame.image.load('./assets/import.png'), pygame.image.load('./assets/import2.png')):
-        os.startfile("raw_training_data")
+    if pygame.Rect(Erase_hitbox[0], Erase_hitbox[1], Erase_size[0], Erase_size[1]).collidepoint(mouse_pos):
+        Erase = pygame.image.load('./assets/erase2.png')
+        if mouse_buttons[0]:
+            pygame.draw.rect(screen.subsurface(canva), "white", (0, 0, screenx, screeny))
+    else:
+        Erase = pygame.image.load('./assets/erase.png')
     
-    if button((130,52), (108, 650), pygame.image.load('./assets/train.png'), pygame.image.load('./assets/train2.png')):
-        for file in os.listdir("processed_training_data"):
-            file_path = os.path.join("processed_training_data", file)
-            if os.path.isfile(file_path):
-                os.remove(file_path)
-        ppdt.preprocess_raw_data()
-        main.Main()
-        screen = pygame.display.set_mode((screenx, screeny))
-        screen.fill(bg_color)
-        pygame.draw.rect(screen, "white", canva)
-        pygame.draw.rect(screen, "white", ai_canva)
-    
-        
-        
     #update screen
     pygame.display.flip() 
     mouse_last_pos = pygame.mouse.get_pos()
