@@ -5,7 +5,7 @@ from torchvision import transforms
 
 
 def preprocess_raw_data():
-    transform = transforms.RandomAffine(degrees=15, translate=(0.15, 0.15), scale=(0.65, 0.8), interpolation=transforms.InterpolationMode.BILINEAR)
+    transform = transforms.RandomAffine(degrees=15, translate=(0.12, 0.12), scale=(0.75, 0.8), interpolation=transforms.InterpolationMode.BILINEAR)
     print("Processing...")
     for i, fn in enumerate(os.listdir('raw_training_data')):
         data = np.load(f"raw_training_data/{fn}")

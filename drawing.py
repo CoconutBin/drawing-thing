@@ -48,6 +48,8 @@ def Main():
                                          train_dataloader, val_dataloader, show_graph=False)
 
     training.random_preview_model(model, val_dataset, labels_dict, title="After Train")
+    
+    testing.labels_dict = labels_dict
 
 Popup = messagebox.askyesno("Import New Data", "Do you want to import new data?")
 if Popup:

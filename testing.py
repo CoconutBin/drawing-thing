@@ -11,7 +11,7 @@ labels_dict = {
     1: 'cat',
     2: 'tornado',
 }
-_,_,_,_, labels_dict = training.prepare_dataset_and_labels(batch_size=64)
+# _,_,_,_, labels_dict = training.prepare_dataset_and_labels(batch_size=64)
 model = training.load_model(model_file_name, num_categories=len(labels_dict))
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
