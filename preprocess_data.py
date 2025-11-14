@@ -6,6 +6,7 @@ from torchvision import transforms
 transform = transforms.RandomAffine(degrees=15, translate=(0.15, 0.15), scale=(0.65, 0.8), interpolation=transforms.InterpolationMode.BILINEAR)
 
 def preprocess_raw_data():
+    print("Processing...")
     for i, fn in enumerate(os.listdir('raw_training_data')):
         data = np.load(f"raw_training_data/{fn}")
         data = np.reshape(data, [len(data), 28, 28]) # Reshape into 2D array to be able to random rotate
