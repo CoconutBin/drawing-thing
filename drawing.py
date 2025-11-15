@@ -23,7 +23,7 @@ momentum = 0.9 # unused with ADAM
 num_epochs = 6
 model_file_name = 'my_model.pth'
 
-def open_file(path):
+def open_file(path): # Chatgpt
     if sys.platform.startswith("win"):
         # Windows
         os.startfile(path)
