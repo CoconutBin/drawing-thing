@@ -1,7 +1,4 @@
 import training
-import cv2
-import matplotlib.pyplot as plt
-
 import torch
 
 model_file_name = 'my_model.pth'
@@ -43,8 +40,3 @@ def get_answer(data):
         results.append(f"{labels_dict[i]}: {prob*100:.2f}%")
     
     return results
-
-# img = cv2.imread("./test.png", 0)
-# data = cv2.resize(img, dsize=(28, 28), interpolation=cv2.INTER_AREA)
-# data = cv2.bitwise_not(data)
-# print(get_answer(data))
