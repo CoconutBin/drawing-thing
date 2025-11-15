@@ -4,6 +4,9 @@ import numpy as np
 import testing
 import time
 import os
+import sys
+import subprocess
+
 import preprocess_data as ppdt
 import torch
 from torchvision import transforms
@@ -19,6 +22,22 @@ learning_rate = 2e-4
 momentum = 0.9 # unused with ADAM
 num_epochs = 6
 model_file_name = 'my_model.pth'
+
+def open_file(path):
+    if sys.platform.startswith("win"):
+        # Windows
+        os.startfile(path)
+
+    elif sys.platform.startswith("darwin"):
+        # macOS
+        subprocess.Popen(["open", path])
+
+    elif sys.platform.startswith("linux"):
+        # Linux (uses xdg-open)
+        subprocess.Popen(["xdg-open", path])
+
+    else:
+        raise OSError("Unsupported operating system.")
 
 def rendering_text(x,y,posx,posy):
     font = pygame.freetype.SysFont('Arial', y)
@@ -52,7 +71,8 @@ def Main():
 
 Popup = messagebox.askyesno("Import New Data", "Do you want to import new data?")
 if Popup:
-    os.startfile("raw_training_data")
+    # os.startfile("raw_training_data")
+    open_file("raw_training_data")
     time.sleep(1)
     messagebox.showinfo("", "Finished?")
     for file in os.listdir("processed_training_data"):
