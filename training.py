@@ -18,24 +18,6 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class NeuralNetwork(nn.Module):
     def __init__(self, num_categories): # Model architecture modified from documentations https://docs.pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html
-    #     super().__init__()
-    #     self.conv1 = nn.Conv2d(1, 2, 5) # [28, 28, 1] -> [24, 24, 2]
-    #     self.pool1 = nn.MaxPool2d(2, 2) # [24, 24, 2] -> [12, 12, 2]
-    #     self.conv2 = nn.Conv2d(2, 4, 3) # [12, 12, 2] -> [10, 10, 4]
-    #     self.pool2 = nn.MaxPool2d(2, 2) # [10, 10, 2] -> [5, 5, 4]
-    #     self.fc1 = nn.Linear(5 * 5 * 4, 32)
-    #     # self.fc2 = nn.Linear(200, 100)
-    #     self.fc3 = nn.Linear(32, num_categories) # As many outputs as there are categories
-
-    # def forward(self, x):
-    #     x = self.pool1(F.relu(self.conv1(x)))
-    #     x = self.pool2(F.sigmoid(self.conv2(x)))
-    #     x = torch.flatten(x, 1)
-    #     x = F.relu(self.fc1(x))
-    #     # x = F.relu(self.fc2(x))
-    #     x = self.fc3(x)
-    #     return x
-    
         super().__init__()
         self.conv1 = nn.Conv2d(1, 8, 5) # [28, 28, 1] -> [24, 24, 8]
         self.pool1 = nn.MaxPool2d(2, 2) # [24, 24, 8] -> [12, 12, 8]
@@ -45,7 +27,6 @@ class NeuralNetwork(nn.Module):
         self.conv2_bn = nn.BatchNorm2d(12)
         self.fc1 = nn.Linear(5 * 5 * 12, 20*num_categories)
         self.dropout2 = nn.Dropout(0.8)
-        # self.fc2 = nn.Linear(500, 200)
         self.fc3 = nn.Linear(20*num_categories, num_categories) # As many outputs as there are categories
 
     def forward(self, x):
@@ -58,17 +39,8 @@ class NeuralNetwork(nn.Module):
         x = torch.flatten(x, 1)
         x = F.relu(self.fc1(x))
         x = self.dropout2(x)
-        # x = F.relu(self.fc2(x))
         x = self.fc3(x)
         return x
-        
-        # x = F.relu(self.pool1((self.conv1(x))))
-        # x = self.pool2(self.conv2_bn(self.conv2(x)))
-        # x = torch.flatten(x, 1)
-        # x = F.relu(self.fc1(x))
-        # # x = F.relu(self.fc2(x))
-        # x = self.fc3(x)
-        # return x
 
 
 def make_new_model(num_categories):
@@ -91,7 +63,6 @@ def prepare_dataset_and_labels(batch_size):
         data_tensor = torch.load(f"processed_training_data/{fn}") # shape is [N, 1, 28, 28], 1 is the color channels
         data_tensor = data_tensor / 255 # Normalize from 0-255 to 0-1
         
-        print(data_tensor.shape)
         
         label_tensor = torch.full((len(data_tensor),), i)
         
@@ -101,6 +72,8 @@ def prepare_dataset_and_labels(batch_size):
         # Get name of this file and add to a dictionary for later labelling
         under_score_index = fn.rfind('_')
         labels_dict[i] = fn[under_score_index+1:-3] # -3 removes the '.pt'
+        
+        print(f"Loaded {fn} - {data_tensor.shape}")
 
     X = torch.cat(datas_array, dim=0).to(device) # Combines data into one big tensor with shape like [index, pixels]
     y = torch.cat(labels_array, dim=0).to(device) # Combines labels into one big label tensor for each index with shape [index]
@@ -110,8 +83,8 @@ def prepare_dataset_and_labels(batch_size):
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
     
-    print(len(train_dataset))
-    print(len(val_dataset))
+    print(f"Num training images: {len(train_dataset)}")
+    print(f"Num validation images: {len(val_dataset)}")
     
     return train_dataset, val_dataset, train_dataloader, val_dataloader, labels_dict
 
@@ -124,8 +97,7 @@ def train_loop(dataloader, model, loss_fn, optimizer, batch_size): # Modified fr
     # Unnecessary in this situation but added for best practices
     model.train()
     for batch, (X, y) in enumerate(dataloader):
-        # Compute prediction and loss
-        
+        # Compute prediction and loss 
         pred = model(X)
         loss = loss_fn(pred, y)
         running_loss += loss.item()
@@ -143,7 +115,7 @@ def train_loop(dataloader, model, loss_fn, optimizer, batch_size): # Modified fr
     return running_loss / len(dataloader) # Average training loss
 
 
-def test_loop(dataloader, model, loss_fn):
+def test_loop(dataloader, model, loss_fn): # Modified from pytorch's documentation
     # Set the model to evaluation mode - important for batch normalization and dropout layers
     # Unnecessary in this situation but added for best practices
     model.eval()
@@ -173,8 +145,6 @@ def train_and_save_model(model, num_epochs, learning_rate, momentum, batch_size,
     # Training
     loss_fn = nn.CrossEntropyLoss()
     optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
-    # optimizer = optim.Adadelta(model.parameters(), lr=learning_rate)
-    # optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     results = []
     for i in range(num_epochs):

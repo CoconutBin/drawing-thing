@@ -4,7 +4,7 @@ import training
 preview_dataset = False
 batch_size = 256
 learning_rate = 1e-4
-momentum = 0.9 # unused with ADAM
+momentum = 0.9
 num_epochs = 6
 model_file_name = 'my_model.pth'
 

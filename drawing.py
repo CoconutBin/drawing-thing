@@ -8,9 +8,6 @@ import sys
 import subprocess
 
 import preprocess_data as ppdt
-import torch
-from torchvision import transforms
-import tkinter as tk
 from tkinter import messagebox
 import training
 
