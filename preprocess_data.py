@@ -7,7 +7,7 @@ from torchvision import transforms
 def preprocess_raw_data():
     transform = transforms.RandomAffine(degrees=15, translate=(0.12, 0.12), scale=(0.75, 0.8), interpolation=transforms.InterpolationMode.BILINEAR)
     print("Processing...")
-    for i, fn in enumerate(os.listdir('raw_training_data')):
+    for fn in os.listdir('raw_training_data'):
         if fn[-3:] != "npy" or f"{fn[:-4]}.pt" in os.listdir('processed_training_data'):
             print(f'{fn} has been skipped') 
             continue

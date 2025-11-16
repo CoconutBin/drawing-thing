@@ -41,27 +41,27 @@ def rendering_text(x,y,posx,posy):
     text, rect = font.render(x,(255, 255, 255))
     screen.blit(text, (posx, posy))
     
-def button(size, pos, file, file2):
+def button(size, pos, file1, file2):
     if pygame.Rect(pos[0], pos[1], size[0], size[1]).collidepoint(mouse_pos):
         screen.blit(file2, pos)
         if mouse_buttons[0]:
             return True
     else:
-        screen.blit(file, pos)
+        screen.blit(file1, pos)
     return False
 
 def Main():
     
     train_dataset, val_dataset, train_dataloader, val_dataloader, labels_dict = training.prepare_dataset_and_labels(batch_size=batch_size)
-    os.remove(model_file_name)
+    if os.path.exists(model_file_name):
+        os.remove(model_file_name)
     model = training.make_new_model(num_categories=len(labels_dict))
 
     # training.random_preview_train_dataset(train_dataset, labels_dict)
     training.random_preview_model(model, val_dataset, labels_dict, title="Before Train")
 
     # Training
-    results = training.train_and_save_model(model, num_epochs, learning_rate, momentum, batch_size, model_file_name,
-                                         train_dataloader, val_dataloader, show_graph=False)
+    training.train_and_save_model(model, num_epochs, learning_rate, momentum, batch_size, model_file_name, train_dataloader, val_dataloader, show_graph=True)
 
     training.random_preview_model(model, val_dataset, labels_dict, title="After Train")
     
@@ -79,7 +79,7 @@ if Popup:
     ppdt.preprocess_raw_data()
     Main()
 
-testing.prepare_shit()
+testing.preparing_stuff()
 
 pygame.init()
 screenx, screeny = 1280, 720
@@ -140,18 +140,18 @@ while running:
     #draw results
     arranged_result = []
     if (mouse_down) & (canva.collidepoint(mouse_pos)):
-        results = testing.get_answer(grayscale_array)
-        for result in results:
-            breakdown_result = result.split(': ')
+        result = testing.get_answer(grayscale_array)
+        for r in result:
+            breakdown_result = r.split(': ')
             arranged_result.append([-1*float(breakdown_result[1][:-1:]),breakdown_result[0]])
         arranged_result = sorted(arranged_result)
         
         # Clear the text area
-        pygame.draw.rect(screen, bg_color, (50, 300, 290, 50 * len(results)))
+        pygame.draw.rect(screen, bg_color, (50, 300, 290, 50 * len(result)))
 
         # Draw new results
-        for i, result in enumerate(arranged_result):
-            rendering_text(result[1]+': '+str(-1*result[0])+'%',36 - round(0.5 * len(result[1])),50,300 + 50 * i)
+        for i, r in enumerate(arranged_result):
+            rendering_text(r[1]+': '+str(-1*r[0])+'%',36 - round(0.5 * len(r[1])),50,300 + 50 * i)
             if i > 3 :break
 
     #draw UI
@@ -174,7 +174,7 @@ while running:
         Erase = pygame.image.load('./assets/erase2.png')
         if mouse_buttons[0]:
             pygame.draw.rect(screen.subsurface(canva), "white", (0, 0, screenx, screeny))
-            pygame.draw.rect(screen, bg_color, (50, 300, 290, 50 * len(results)))
+            pygame.draw.rect(screen, bg_color, (50, 300, 290, 50 * len(result)))
     else:
         Erase = pygame.image.load('./assets/erase.png')
     

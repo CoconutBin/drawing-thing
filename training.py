@@ -82,8 +82,8 @@ def prepare_dataset_and_labels(batch_size):
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
     
-    print(f"Num training images: {len(train_dataset)}")
-    print(f"Num validation images: {len(val_dataset)}")
+    print(f"Number of training images: {len(train_dataset)}")
+    print(f"Number of validation images: {len(val_dataset)}")
     
     return train_dataset, val_dataset, train_dataloader, val_dataloader, labels_dict
 
@@ -120,7 +120,7 @@ def test_loop(dataloader, model, loss_fn): # Modified from pytorch's documentati
     model.eval()
     size = len(dataloader.dataset)
     num_batches = len(dataloader)
-    test_loss, correct = 0, 0
+    test_loss, correct = 0.0, 0.0
 
     # Evaluating the model with torch.no_grad() ensures that no gradients are computed during test mode
     # also serves to reduce unnecessary gradient computations and memory usage for tensors with requires_grad=True

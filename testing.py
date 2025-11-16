@@ -8,7 +8,7 @@ labels_dict = {}
 model = None
 device = None
 
-def prepare_shit():
+def preparing_stuff():
     global device
     global labels_dict
     global model
