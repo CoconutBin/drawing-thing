@@ -78,7 +78,7 @@ def prepare_dataset_and_labels(batch_size):
     y = torch.cat(labels_array, dim=0).to(device) # Combines labels into one big label tensor for each index with shape [index]
 
     my_dataset = TensorDataset(X, y)
-    train_dataset, val_dataset = random_split(my_dataset, [0.95, 0.05])
+    train_dataset, val_dataset = random_split(my_dataset, [0.8, 0.2])
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
     
