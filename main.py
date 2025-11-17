@@ -193,3 +193,4 @@ while running:
     mouse_last_pos = pygame.mouse.get_pos()
     
 pygame.quit()
+sys.exit()
