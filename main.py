@@ -63,7 +63,7 @@ def Main():
     training.random_preview_model(model, val_dataset, labels_dict, title="After Train")
     
 if (os.path.exists(model_file_name)) & (os.listdir("processed_training_data") != []):
-    Popup = messagebox.askyesno("Import New Data", "Do you want to import new data?")
+    Popup = messagebox.askyesno("Import New Data", "Do you want to import new data / Retrain the model?")
     if Popup:
         # os.startfile("raw_training_data")
         open_file("raw_training_data")
