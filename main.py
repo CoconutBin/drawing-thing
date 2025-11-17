@@ -90,7 +90,7 @@ else:
         if os.path.isfile(file_path):
             os.remove(file_path)
     ppdt.preprocess_raw_data()
-    Main()
+    training_model()
 
 testing.preparing_stuff()
 
