@@ -71,7 +71,7 @@ basefile.withdraw()
 basefile.wm_attributes("-topmost", True) # make the pop up(s) stay on the top
 # if (os.path.exists(model_file_name)) & (os.listdir("processed_training_data") != []):
 if (os.path.exists(model_file_name)):
-    Popup = messagebox.askyesno("Option", "Do you want to Import new data / Retrain the model?")
+    Popup = messagebox.askyesno("Option", "Do you want to Import new data / Retrain the model?\n No -> Run current model and drawing program")
     basefile.withdraw()
     if Popup:
         open_file("raw_training_data")
