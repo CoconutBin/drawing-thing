@@ -49,7 +49,7 @@ def make_new_model(num_categories):
 
 def load_model(filepath, num_categories):
     model = NeuralNetwork(num_categories).to(device)
-    model.load_state_dict(torch.load(filepath, weights_only=True))
+    model.load_state_dict(torch.load(filepath, weights_only=True)) # add map_location=torch.device('cpu') to the toch.load() function if using cpu
     return model
 
 
