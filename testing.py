@@ -13,7 +13,7 @@ def preparing_stuff():
     global labels_dict
     global model
     
-    _,_,_,_, labels_dict = training.prepare_dataset_and_labels(batch_size=64)
+    labels_dict = training.get_labels_dict()
     model = training.load_model(model_file_name, num_categories=len(labels_dict))
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

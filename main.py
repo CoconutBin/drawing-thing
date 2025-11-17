@@ -51,7 +51,10 @@ def button(size, pos, file1, file2):
     return False
 
 def training_model():
-    train_dataset, val_dataset, train_dataloader, val_dataloader, labels_dict = training.prepare_dataset_and_labels(batch_size=batch_size)
+    training.save_current_categories_to_labels_txt()
+    
+    train_dataset, val_dataset, train_dataloader, val_dataloader = training.prepare_dataset(batch_size=batch_size)
+    labels_dict = training.get_labels_dict()
 
     model = training.make_new_model(num_categories=len(labels_dict))
 

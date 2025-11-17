@@ -53,8 +53,27 @@ def load_model(filepath, num_categories):
     return model
 
 
-def prepare_dataset_and_labels(batch_size):
+def save_current_categories_to_labels_txt():
+    labels = ""
+    for fn in os.listdir('processed_training_data'):
+        under_score_index = fn.rfind('_')
+        labels += fn[under_score_index+1:-3] # -3 removes the '.pt'
+        labels += '\n'
+    
+    with open('labels.txt', 'w') as fn:
+        fn.write(labels)
+
+
+def get_labels_dict():
     labels_dict = {}
+    with open('labels.txt', 'r') as fn:
+        for i, label in enumerate(fn):
+            label = label.strip()
+            labels_dict[i] = label
+    return labels_dict
+
+
+def prepare_dataset(batch_size):
     datas_array = []
     labels_array = []
     
@@ -67,10 +86,6 @@ def prepare_dataset_and_labels(batch_size):
         
         datas_array.append(data_tensor)
         labels_array.append(label_tensor)
-        
-        # Get name of this file and add to a dictionary for later labelling
-        under_score_index = fn.rfind('_')
-        labels_dict[i] = fn[under_score_index+1:-3] # -3 removes the '.pt'
         
         print(f"Loaded {fn} - {data_tensor.shape}")
 
@@ -85,7 +100,7 @@ def prepare_dataset_and_labels(batch_size):
     print(f"Number of training images: {len(train_dataset)}")
     print(f"Number of validation images: {len(val_dataset)}")
     
-    return train_dataset, val_dataset, train_dataloader, val_dataloader, labels_dict
+    return train_dataset, val_dataset, train_dataloader, val_dataloader
 
 
 def train_loop(dataloader, model, loss_fn, optimizer, batch_size): # Modified from pytorch's documentation

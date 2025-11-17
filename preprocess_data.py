@@ -6,7 +6,8 @@ from torchvision import transforms
 
 def preprocess_raw_data():
     transform = transforms.RandomAffine(degrees=15, translate=(0.12, 0.12), scale=(0.75, 0.8), interpolation=transforms.InterpolationMode.BILINEAR)
-    print("Processing...")
+    
+    print("Preprocessing .npy files... (this may take a while)")
     for fn in os.listdir('raw_training_data'):
         if fn[-3:] != "npy" or f"{fn[:-4]}.pt" in os.listdir('processed_training_data'):
             print(f'{fn} has been skipped') 
@@ -16,7 +17,7 @@ def preprocess_raw_data():
         
         # Convert to tensor
         data_tensor = torch.tensor(data)
-        data_tensor = data_tensor.unsqueeze(1) # Turns the shape [N, 28, 28] -> [N, 1, 28, 28] torch model needs to format to be this way
+        data_tensor = data_tensor.unsqueeze(1) # Turns the shape [N, 28, 28] -> [N, 1, 28, 28] torch needs info on channels
         
         # Transform each image
         data_tensor = torch.stack([transform(img) for img in data_tensor])
