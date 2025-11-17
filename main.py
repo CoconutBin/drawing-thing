@@ -9,7 +9,6 @@ import subprocess
 
 import preprocess_data as ppdt
 import tkinter as tk
-from tkinter import *
 from tkinter import messagebox
 import training
 
