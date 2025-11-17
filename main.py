@@ -69,7 +69,8 @@ def training_model():
 basefile = tk.Tk()
 basefile.withdraw()
 basefile.wm_attributes("-topmost", True) # make the pop up(s) stay on the top
-if (os.path.exists(model_file_name)) & (os.listdir("processed_training_data") != []):
+# if (os.path.exists(model_file_name)) & (os.listdir("processed_training_data") != []):
+if (os.path.exists(model_file_name)):
     Popup = messagebox.askyesno("Option", "Do you want to Import new data / Retrain the model?")
     basefile.withdraw()
     if Popup:
