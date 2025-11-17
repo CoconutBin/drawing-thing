@@ -51,13 +51,10 @@ def button(size, pos, file1, file2):
     return False
 
 def Main():
-    
-    
     train_dataset, val_dataset, train_dataloader, val_dataloader, labels_dict = training.prepare_dataset_and_labels(batch_size=batch_size)
 
     model = training.make_new_model(num_categories=len(labels_dict))
 
-    # training.random_preview_train_dataset(train_dataset, labels_dict)
     training.random_preview_model(model, val_dataset, labels_dict, title="Before Train")
 
     # Training

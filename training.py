@@ -182,24 +182,6 @@ def train_and_save_model(model, num_epochs, learning_rate, momentum, batch_size,
         plt.show()
 
 
-def random_preview_train_dataset(train_dataset: torch.utils.data.Dataset, labels_dict):
-    fig, axs = plt.subplots(plots_size, plots_size, figsize=(figsize, figsize))
-    fig.tight_layout()
-    for i in range(plots_size):
-        for j in range(plots_size):
-            random_index = random.randint(0, len(train_dataset))
-            image, label = train_dataset[random_index]
-            
-            image = image.squeeze(0) # Removes the channel [-> 1 <-, 28, 28]
-            axs[i, j].imshow(image.cpu())
-            axs[i, j].set_title(labels_dict[label.item()], fontsize=fontsize)
-            axs[i, j].axis("off")
-
-    plt.subplots_adjust(right=0.95, top=0.9)
-    plt.suptitle("Training Dataset Preview", fontsize=20)
-    plt.show()
-
-
 def random_preview_model(model, val_dataset, labels_dict, title):
     model.eval()
     
