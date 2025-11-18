@@ -26,7 +26,7 @@ def open_file(path): # Chatgpt
         os.startfile(path)
 
     elif sys.platform.startswith("darwin"):
-        # macOS
+        # MacOS
         subprocess.Popen(["open", path])
 
     elif sys.platform.startswith("linux"):
@@ -69,10 +69,8 @@ def training_model():
 basefile = tk.Tk()
 basefile.withdraw()
 basefile.wm_attributes("-topmost", True) # make the pop up(s) stay on the top
-# if (os.path.exists(model_file_name)) & (os.listdir("processed_training_data") != []):
 if (os.path.exists(model_file_name)):
     Popup = messagebox.askyesno("Option", "Do you want to Import new data / Retrain the model?\n No -> Run current model and drawing program")
-    basefile.withdraw()
     if Popup:
         open_file("raw_training_data")
         time.sleep(1)
@@ -86,7 +84,6 @@ if (os.path.exists(model_file_name)):
 else:
     open_file("raw_training_data")
     time.sleep(1)
-    basefile.withdraw()
     messagebox.showinfo("Importing Data", "Finished?")
     for file in os.listdir("processed_training_data"):
         file_path = os.path.join("processed_training_data", file)
@@ -190,7 +187,7 @@ while running:
         pygame.draw.rect(screen.subsurface(canva), "white", (0, 0, screenx, screeny))
     
     #update screen
-    pygame.display.flip() 
+    pygame.display.flip()
     mouse_last_pos = pygame.mouse.get_pos()
     
 pygame.quit()
