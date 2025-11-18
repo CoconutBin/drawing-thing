@@ -134,13 +134,10 @@ while running:
     
     #collect data
     save_image = screen.subsurface(canva)
-    save_image = pygame.transform.smoothscale(save_image, (28, 28))
+    save_image = pygame.transform.smoothscale(save_image, (28, 28)) # White becomes 253 instead because anti alias something
     drawing_data = pygame.surfarray.array3d(save_image)
-    grayscale_array = np.round( # chatgpt
-        0.299 * drawing_data[:, :, 0] +
-        0.587 * drawing_data[:, :, 1] +
-        0.114 * drawing_data[:, :, 2]
-    ).astype(np.uint8)
+    grayscale_array = drawing_data[:,:,0] # Only R channel, its black and white only so its fine\
+    grayscale_array = grayscale_array.max() - grayscale_array # Swap black and white
     
     #store mouse pos(s)
     mouse_pos_x = mouse_pos[0] - 810
