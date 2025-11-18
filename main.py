@@ -20,7 +20,7 @@ momentum = 0.9
 num_epochs = 6
 model_file_name = 'my_model.pth'
 
-def open_file(path): # Chatgpt
+def open_file(path): # written with the help of chatGPT
     if sys.platform.startswith("win"):
         # Windows
         os.startfile(path)
@@ -137,7 +137,7 @@ while running:
     save_image = screen.subsurface(canva)
     save_image = pygame.transform.smoothscale(save_image, (28, 28)) # White becomes 253 instead because anti alias something
     drawing_data = pygame.surfarray.array3d(save_image)
-    grayscale_array = drawing_data[:,:,0] # Only R channel, its black and white only so its fine\
+    grayscale_array = drawing_data[:,:,0] # Only R channel, it's black and white only so its fine\
     grayscale_array = grayscale_array.max() - grayscale_array # Swap black and white
     
     #store mouse pos(s)
