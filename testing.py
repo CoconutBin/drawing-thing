@@ -24,10 +24,10 @@ def preparing_stuff():
 
 
 def get_answer(data):
+    data = data / data.max() # Normalize to 0-1
+    
     # Convert to tensor
-    data_tensor = torch.tensor(data).to(device)
-    data_tensor = 1 - ((data_tensor - data_tensor.min()) / (data_tensor.max() - data_tensor.min() + 1e-12))
-    data_tensor = torch.clamp(data_tensor, 0, 1)
+    data_tensor = torch.tensor(data, dtype=torch.float32).to(device)
     
     data_tensor = data_tensor.unsqueeze(0) # Turns the shape [28, 28] -> [1, 28, 28]
     data_tensor = data_tensor.unsqueeze(0) # Turns the shape [1, 28, 28] -> [1, 1, 28, 28] torch model needs to format to be this way

@@ -1,6 +1,5 @@
 import pygame
 import pygame.freetype
-import numpy as np
 import testing
 import time
 import os
@@ -20,13 +19,13 @@ momentum = 0.9
 num_epochs = 6
 model_file_name = 'my_model.pth'
 
-def open_file(path): # Chatgpt
+def open_file(path): # written with the help of chatGPT
     if sys.platform.startswith("win"):
         # Windows
         os.startfile(path)
 
     elif sys.platform.startswith("darwin"):
-        # macOS
+        # MacOS
         subprocess.Popen(["open", path])
 
     elif sys.platform.startswith("linux"):
@@ -69,12 +68,11 @@ def training_model():
 basefile = tk.Tk()
 basefile.withdraw()
 basefile.wm_attributes("-topmost", True) # make the pop up(s) stay on the top
-# if (os.path.exists(model_file_name)) & (os.listdir("processed_training_data") != []):
 if (os.path.exists(model_file_name)):
     Popup = messagebox.askyesno("Option", "Do you want to Import new data / Retrain the model?\n No -> Run current model and drawing program")
-    basefile.withdraw()
     if Popup:
         open_file("raw_training_data")
+        print("\nGet .npy files from here: \nhttps://console.cloud.google.com/storage/browser/quickdraw_dataset/full/numpy_bitmap;tab=objects?prefix=&forceOnObjectsSortingFiltering=false")
         time.sleep(1)
         messagebox.showinfo("Importing Data", "Finished?")
         for file in os.listdir("processed_training_data"):
@@ -86,7 +84,6 @@ if (os.path.exists(model_file_name)):
 else:
     open_file("raw_training_data")
     time.sleep(1)
-    basefile.withdraw()
     messagebox.showinfo("Importing Data", "Finished?")
     for file in os.listdir("processed_training_data"):
         file_path = os.path.join("processed_training_data", file)
@@ -137,13 +134,10 @@ while running:
     
     #collect data
     save_image = screen.subsurface(canva)
-    save_image = pygame.transform.smoothscale(save_image, (28, 28))
+    save_image = pygame.transform.smoothscale(save_image, (28, 28)) # White becomes 253 instead because anti alias something
     drawing_data = pygame.surfarray.array3d(save_image)
-    grayscale_array = np.round( # chatgpt
-        0.299 * drawing_data[:, :, 0] +
-        0.587 * drawing_data[:, :, 1] +
-        0.114 * drawing_data[:, :, 2]
-    ).astype(np.uint8)
+    grayscale_array = drawing_data[:,:,0] # Only R channel, it's black and white only so its fine\
+    grayscale_array = grayscale_array.max() - grayscale_array # Swap black and white
     
     #store mouse pos(s)
     mouse_pos_x = mouse_pos[0] - 810
@@ -190,7 +184,7 @@ while running:
         pygame.draw.rect(screen.subsurface(canva), "white", (0, 0, screenx, screeny))
     
     #update screen
-    pygame.display.flip() 
+    pygame.display.flip()
     mouse_last_pos = pygame.mouse.get_pos()
     
 pygame.quit()
