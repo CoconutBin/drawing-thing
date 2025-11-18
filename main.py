@@ -73,6 +73,7 @@ if (os.path.exists(model_file_name)):
     Popup = messagebox.askyesno("Option", "Do you want to Import new data / Retrain the model?\n No -> Run current model and drawing program")
     if Popup:
         open_file("raw_training_data")
+        print("\nGet .npy files from here: \nhttps://console.cloud.google.com/storage/browser/quickdraw_dataset/full/numpy_bitmap;tab=objects?prefix=&forceOnObjectsSortingFiltering=false")
         time.sleep(1)
         messagebox.showinfo("Importing Data", "Finished?")
         for file in os.listdir("processed_training_data"):
