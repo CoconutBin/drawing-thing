@@ -1,6 +1,5 @@
 import pygame
 import pygame.freetype
-import numpy as np
 import testing
 import time
 import os
